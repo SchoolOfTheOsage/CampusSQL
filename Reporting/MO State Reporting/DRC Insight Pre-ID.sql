@@ -28,7 +28,7 @@ P AS (
         COALESCE(C.email,'') AS email
     FROM Person P
     JOIN [Identity] I ON I.identityID = P.currentIdentityID
-    JOIN Contact C ON C.personID = P.personID
+    LEFT JOIN Contact C ON C.personID = P.personID
 ),
 --Roster
 R AS (
@@ -56,14 +56,14 @@ R AS (
         SectionPlacement SP
         ON SP.trialID = T.trialID
         AND SP.sectionID = S.sectionID
-    JOIN 
-        Term Te 
-        ON Te.termID = SP.termID
-        AND Te.startDate <= GETDATE()
-        AND (Te.endDate >= GETDATE() OR Te.endDate IS NULL)
-    WHERE 
-        R.startDate <= GETDATE() 
-        AND (R.endDate >= GETDATE() OR R.enddate IS NULL)
+    --JOIN 
+        --Term Te 
+        --ON Te.termID = SP.termID
+        --AND Te.startDate <= GETDATE()
+        --AND (Te.endDate >= GETDATE() OR Te.endDate IS NULL)
+    --WHERE 
+        --R.startDate <= GETDATE() 
+        --AND (R.endDate >= GETDATE() OR R.enddate IS NULL)
 ),
 --Assessment Subject
 [AS] AS (
@@ -98,7 +98,7 @@ TM AS (
         AND CA.object = 'Section'
         AND CA.element = 'assessmentType'
 )
-
+--Main Query
 SELECT DISTINCT
 C.districtNumber AS 'District Code',
 C.schoolNumber AS 'School Code',
@@ -190,6 +190,6 @@ JOIN Enrollment E ON E.calendarID = C.calendarID
 JOIN P ON P.personID = E.personID
 JOIN R ON R.personID = P.personID
 JOIN [AS] ON [AS].courseID = R.courseID
-JOIN TM ON TM.sectionID = R.sectionID AND TM.testMethod IN('ONLINE','O')
+LEFT JOIN TM ON TM.sectionID = R.sectionID AND TM.testMethod IN('ONLINE','O')
 JOIN [AT] ON [AT].sectionID = R.sectionID AND [AT].assessmentType = 'MAPSPR'
-JOIN P T ON T.personID = R.teacherPersonID
+LEFT JOIN P T ON T.personID = R.teacherPersonID
